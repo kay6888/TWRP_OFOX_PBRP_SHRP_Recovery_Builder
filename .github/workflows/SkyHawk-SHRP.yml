@@ -10,7 +10,7 @@ on:
       MANIFEST_BRANCH:
         description: 'SHRP Manifest Branch'
         required: true
-        default: ''
+        default: 'shrp-12.1'
         type: choice
         options:
         - shrp-12.1
@@ -20,23 +20,23 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree' # Your already made Device Tree for TWRP
         required: true
-        default: 'https://github.com/mlm-games/twrp_lenovo_7305x_m7_mt8765_P' 
+        default: 'https://github.com/kay6888/device_motorola_fogo'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch' # Your Device Tree Branch, make sure it's right.
         required: true
-        default: 'shrp-9.0'
+        default: 'android-12.1'
       DEVICE_PATH:
         description: 'Specify your Device Path' # As is, just like your DEVICE_PATH in your BoardConfig.mk
         required: true
-        default: 'device/lenovo/mt8765_P'
+        default: 'device/Motorola/fogo'
       DEVICE_NAME:
         description: 'Specify your Device Codename' # As is, just like your PRODUCT_DEVICE in your device tree.
         required: true
-        default: 'mt8765_P'
+        default: 'fogo'
       BUILD_TARGET:
         description: 'Specify your Build Target' # Pick among boot, recovery and vendor_boot
         required: true
-        default: 'recovery'
+        default: 'boot'
         type: choice
         options:
         - boot
@@ -45,7 +45,7 @@ on:
       LDCHECK:
         description: 'Use LDCHECK'
         required: false
-        default: 'false'
+        default: 'true'
         type: boolean
       LDCHECKPATH:
         description: 'Path of blobs to check' # Use it know what kind of dependencies your missing for decryption blobs.
@@ -55,7 +55,7 @@ on:
 jobs:
   build:
     name: Build SHRP by ${{ github.actor }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     env:
       OUTPUT_DIR: ${{ github.workspace }}/android-recovery/out/target/product
@@ -88,11 +88,20 @@ jobs:
             echo "CHECK_LEGACY_BRANCH=false" >> $GITHUB_ENV
         else
             echo "CHECK_LEGACY_BRANCH=true" >> $GITHUB_ENV
-        fi
-
+        fi      
+ 
     - name: Prepare the environment
       run: |
-        sudo apt update && sudo apt -y upgrade && sudo apt -y install gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib libc6-dev lib32ncurses5-dev x11proto-core-dev libx11-dev tree lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc bc ccache lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libwxgtk3.0-gtk3-dev libxml2 lzop pngcrush schedtool squashfs-tools imagemagick libbz2-dev lzma ncftp qemu-user-static libstdc++-10-dev libtinfo5 libgflags-dev libncurses5 python3
+        sudo dpkg --add-architecture i386  # Required for :i386 packages
+        sudo apt update
+        sudo apt -y upgrade
+        sudo apt -y install libncurses6 libncurses6:i386 libwxgtk3.2-dev \
+           libncurses-dev gperf gcc-multilib g++-multilib \
+           libc6-dev lib32ncurses-dev x11proto-core-dev libx11-dev \
+           libgl1-mesa-dev libxml2-utils xsltproc bc lzop imagemagick \
+           python2 python-is-python3 python3-pip rsync zip unzip \
+           schedtool repo ccache git-core gnupg flex bison \
+           build-essential curl zlib1g-dev libreadline-dev pngcrush
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2

@@ -75,7 +75,14 @@ jobs:
         DEVICE_TREE:  ${{ inputs.DEVICE_TREE }}
         DEVICE_TREE_BRANCH:  ${{ inputs.DEVICE_TREE_BRANCH }}
         BUILD_TARGET:  ${{ inputs.BUILD_TARGET }}
-  
+   
+    - name: Install Dependencie
+      run: |
+       sudo dpkg --add-architecture i386
+       sudo add-apt-repository universe
+       sudo apt-get update
+       sudo apt-get install -y git wget repo python3 python3-pip lib32z1 libncurses6 lib32ncurses6
+
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       if: inputs.upload_releases == false || github.event_name != 'workflow_dispatch'
